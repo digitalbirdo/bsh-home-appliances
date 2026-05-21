@@ -144,6 +144,41 @@ void BSHDBus::add_on_frame_callback(
   this->frame_callbacks_.add(std::move(frame_callback));
 }
 
+void BSHDBus::write_frame(uint8_t dest, uint16_t command, const std::vector<uint8_t> &data) {
+  std::vector<uint8_t> frame;
+  
+  // Calculate frame length: 1 byte dest + 2 bytes command + data length
+  uint8_t frame_len = 1 + 2 + data.size();
+  
+  // Build frame: LL DD CCCC [data]
+  frame.push_back(frame_len);
+  frame.push_back(dest);
+  frame.push_back((command >> 8) & 0xFF);
+  frame.push_back(command & 0xFF);
+  
+  // Add data bytes
+  frame.insert(frame.end(), data.begin(), data.end());
+  
+  // Calculate and append CRC16 (big-endian)
+  uint16_t crc = crc16be(frame.data(), frame.size(), 0x0, 0x1021, false, false);
+  frame.push_back((crc >> 8) & 0xFF);
+  frame.push_back(crc & 0xFF);
+  
+  // Log the frame being sent
+  char hex_buf[format_hex_size(BSHDBUS_MAX_LOG_BYTES)];
+  ESP_LOGD(TAG, "Sending frame dest 0x%02x cmd 0x%04x: 0x%s", dest, command, 
+           format_hex_to(hex_buf, data));
+  ESP_LOGV(TAG, "Complete frame with CRC: 0x%s", format_hex_to(hex_buf, frame));
+  
+  // Write frame to UART
+  this->write_array(frame.data(), frame.size());
+  this->flush();
+  
+  // Set expectation for ACK
+  this->last_dest_ = dest;
+  this->expect_ack_ = true;
+}
+
 void BSHDBusListener::on_message(uint8_t dest, uint16_t command, std::vector<uint8_t> &message) {
   if ((this->command_ != 0xffff) && (this->command_ != command))
     return;

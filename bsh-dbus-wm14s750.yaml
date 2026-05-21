@@ -285,3 +285,102 @@ text_sensor:
           - 0 -> Angehalten/Bereit
           - 1 -> Fertig
           - 2 -> Läuft
+
+# Write examples - demonstrates D-Bus writing functionality
+button:
+  # Example 1: Start/Pause the washing program
+  - platform: template
+    name: Start/Pause Program
+    icon: mdi:play-pause
+    on_press:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x15
+          command: 0x1100
+          data: [0x01]
+      - logger.log: "Sent Start/Pause command to washing machine"
+  
+  # Example 2: Set temperature to 40°C
+  - platform: template
+    name: Set Temperature 40°C
+    icon: mdi:thermometer
+    on_press:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1004
+          data: [0x02]  # 0x02 = 40°C according to the sensor mapping
+      - logger.log: "Sent temperature 40°C command"
+  
+  # Example 3: Set spin speed to 1200 RPM
+  - platform: template
+    name: Set Spin 1200 RPM
+    icon: mdi:speedometer
+    on_press:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1006
+          data: [0x78]  # 0x78 * 10 = 1200 RPM
+      - logger.log: "Sent spin speed 1200 RPM command"
+
+switch:
+  # Example 4: Toggle Water Plus feature
+  - platform: template
+    name: Water Plus
+    icon: mdi:water-plus
+    optimistic: true
+    turn_on_action:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1007
+          data: [0x02]  # Bit 1 set for Water Plus
+      - logger.log: "Enabled Water Plus feature"
+    turn_off_action:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1007
+          data: [0x00]  # Bit 1 clear
+      - logger.log: "Disabled Water Plus feature"
+  
+  # Example 5: Toggle Pre-wash feature
+  - platform: template
+    name: Pre-wash
+    icon: mdi:rotate-orbit
+    optimistic: true
+    turn_on_action:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1007
+          data: [0x80]  # Bit 7 set for Pre-wash
+      - logger.log: "Enabled Pre-wash feature"
+    turn_off_action:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1007
+          data: [0x00]  # Bit 7 clear
+      - logger.log: "Disabled Pre-wash feature"
+
+# Example 6: More advanced - write with dynamic data based on user input
+number:
+  - platform: template
+    name: Custom Temperature
+    icon: mdi:thermometer-lines
+    min_value: 0
+    max_value: 7
+    step: 1
+    optimistic: true
+    set_action:
+      - bshdbus.write:
+          id: dbus_uart
+          dest: 0x14
+          command: 0x1004
+          data: !lambda |-
+            return {(uint8_t)x};
+      - logger.log:
+          format: "Set custom temperature value: %.0f"
+          args: ['x']

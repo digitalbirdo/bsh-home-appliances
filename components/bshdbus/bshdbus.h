@@ -40,6 +40,9 @@ class BSHDBus : public uart::UARTDevice, public Component {
   void register_listener(BSHDBusListener *listener) { this->listeners_.push_back(listener); }
   void add_on_frame_callback(
       std::function<void(std::vector<uint8_t>, uint8_t, uint16_t, std::vector<uint8_t>)> &&frame_callback);
+  
+  // Write a command frame to the bus
+  void write_frame(uint8_t dest, uint16_t command, const std::vector<uint8_t> &data);
 
  protected:
   std::vector<uint8_t> rx_buffer_;
