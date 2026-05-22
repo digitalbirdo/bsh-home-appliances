@@ -76,6 +76,7 @@ uart:
   baud_rate: 9600
 
 bshdbus:
+  id: bsh_dbus
   uart_id: dbus_uart
   on_frame:
     - logger.log:
@@ -294,7 +295,7 @@ button:
     icon: mdi:play-pause
     on_press:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x15
           command: 0x1100
           data: [0x01]
@@ -306,7 +307,7 @@ button:
     icon: mdi:thermometer
     on_press:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1004
           data: [0x02]  # 0x02 = 40°C according to the sensor mapping
@@ -318,7 +319,7 @@ button:
     icon: mdi:speedometer
     on_press:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1006
           data: [0x78]  # 0x78 * 10 = 1200 RPM
@@ -332,14 +333,14 @@ switch:
     optimistic: true
     turn_on_action:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1007
           data: [0x02]  # Bit 1 set for Water Plus
       - logger.log: "Enabled Water Plus feature"
     turn_off_action:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1007
           data: [0x00]  # Bit 1 clear
@@ -352,14 +353,14 @@ switch:
     optimistic: true
     turn_on_action:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1007
           data: [0x80]  # Bit 7 set for Pre-wash
       - logger.log: "Enabled Pre-wash feature"
     turn_off_action:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1007
           data: [0x00]  # Bit 7 clear
@@ -376,7 +377,7 @@ number:
     optimistic: true
     set_action:
       - bshdbus.write:
-          id: dbus_uart
+          id: bsh_dbus
           dest: 0x14
           command: 0x1004
           data: !lambda |-
