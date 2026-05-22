@@ -131,7 +131,7 @@ void BSHDBus::loop() {
       std::vector<uint8_t> crc(this->rx_buffer_.end() - 2, this->rx_buffer_.end());
 
       ESP_LOGV(TAG, "Valid frame dest 0x%02x cmd 0x%04x: 0x%s", dest, command, format_hex_to(hex_buf, message));
-      ESP_LOGV(TAG, "CRC: 0x%s" format_hex_to(hex_buf, crc));
+      ESP_LOGV(TAG, "CRC: 0x%s", format_hex_to(hex_buf, crc));
       this->frame_callbacks_.call(this->rx_buffer_, dest, command, message);
       for (auto &listener : this->listeners_)
         listener->on_message(dest, command, message);
