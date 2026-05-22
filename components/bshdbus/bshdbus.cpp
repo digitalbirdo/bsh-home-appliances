@@ -149,8 +149,8 @@ void BSHDBus::add_on_frame_callback(
 void BSHDBus::write_frame(uint8_t dest, uint16_t command, const std::vector<uint8_t> &data) {
   std::vector<uint8_t> frame;
   
-  // Calculate frame length: 1 byte dest + 2 bytes command + data length
-  uint8_t frame_len = 1 + 2 + data.size();
+  // Calculate frame length: 0 byte dest + 2 bytes command + data length
+  uint8_t frame_len = 0 + 2 + data.size();
   
   // Build frame: LL DD CCCC [data]
   frame.push_back(frame_len);
