@@ -128,8 +128,10 @@ void BSHDBus::loop() {
       const uint16_t command = encode_uint16(this->rx_buffer_[2], this->rx_buffer_[3]);
       /* Skip bytes for LL + DS + CCCC at beginning, CRC at end */
       std::vector<uint8_t> message(this->rx_buffer_.begin() + 1 + 1 + 2, this->rx_buffer_.end() - 2);
+      std::vector<uint8_t> crc(this->rx_buffer_.end() - 2, this->rx_buffer_.end());
 
       ESP_LOGV(TAG, "Valid frame dest 0x%02x cmd 0x%04x: 0x%s", dest, command, format_hex_to(hex_buf, message));
+      ESP_LOGV(TAG, "CRC: 0x%s" format_hex_to(hex_buf, crc));
       this->frame_callbacks_.call(this->rx_buffer_, dest, command, message);
       for (auto &listener : this->listeners_)
         listener->on_message(dest, command, message);
