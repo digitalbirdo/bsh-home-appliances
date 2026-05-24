@@ -24,7 +24,7 @@ template<typename... Ts> class WriteAction : public Action<Ts...>, public Parent
   TEMPLATABLE_VALUE(uint16_t, command)
   TEMPLATABLE_VALUE(std::vector<uint8_t>, data)
 
-  void play(Ts... x) override {
+  void play(const Ts &... x) override {
     auto dest_val = this->dest_.value(x...);
     auto command_val = this->command_.value(x...);
     auto data_val = this->data_.value(x...);
